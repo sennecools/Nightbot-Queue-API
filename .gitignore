@@ -1,0 +1,14 @@
+# Ignore the .clasp.json configuration file (contains sensitive info)
+.clasp.json
+
+# Ignore node_modules folder
+node_modules/
+
+# Ignore local VS Code settings
+.vscode/
+
+# Ignore macOS system files
+.DS_Store
+
+# Ignore temporary files
+*.log

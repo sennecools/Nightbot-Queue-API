@@ -33,6 +33,7 @@ function doGet(request) {
 	}
 
 	function sort_queue(entries) {
+		const top_tippers_amount = 6;
 		return entries.sort((a, b) => {
 			const tip_a = parseFloat(a[4]) || 0;
 			const tip_b = parseFloat(b[4]) || 0;
@@ -45,14 +46,23 @@ function doGet(request) {
 				b[3] === 'TRUE' ||
 				is_subscriber_or_higher(b[3]);
 
-			if (tip_a >= 6 && tip_b >= 6) return tip_b - tip_a;
-			if (tip_a >= 6) return -1;
-			if (tip_b >= 6) return 1;
+			// Priority 1: Top Tippers (Tip >= $6), ranked by highest tip amount
+			if (tip_a >= top_tippers_amount && tip_b >= top_tippers_amount)
+				return tip_b - tip_a;
+			if (tip_a >= top_tippers_amount) return -1;
+			if (tip_b >= top_tippers_amount) return 1;
+
+			// Priority 2: Subscribers, Moderators, and Owners (sorted by join time)
+			if (is_sub_a && is_sub_b) return new Date(a[2]) - new Date(b[2]);
 			if (is_sub_a && !is_sub_b) return -1;
 			if (!is_sub_a && is_sub_b) return 1;
+
+			// Priority 3: Users with tips below $6, ranked by tip amount
 			if (tip_a > 0 && tip_b > 0) return tip_b - tip_a;
 			if (tip_a > 0) return -1;
 			if (tip_b > 0) return 1;
+
+			// Priority 4: Regular users (sorted by join time)
 			return new Date(a[2]) - new Date(b[2]);
 		});
 	}
@@ -97,11 +107,11 @@ function doGet(request) {
 		const index = queue_data.findIndex((entry) => entry[0] === user_name);
 		if (index < 0)
 			return create_json_output({
-				message: `${user_name} is not in the queue.`,
+				message: `${user_name} you are not in the queue.`,
 			});
 		queue_sheet.deleteRow(index + 2);
 		return create_json_output({
-			message: `${user_name} removed from the queue.`,
+			message: `${user_name} you are removed from the queue.`,
 		});
 	}
 
@@ -127,7 +137,7 @@ function doGet(request) {
 		);
 		if (position < 0)
 			return create_json_output({
-				message: `${user_name} is not in the queue.`,
+				message: `${user_name} you are not in the queue.`,
 			});
 		return create_json_output({
 			message: `${user_name}, you are at position ${
@@ -193,6 +203,18 @@ function doGet(request) {
 		});
 	}
 
+	function remove_user(user) {
+		const index = queue_data.findIndex((entry) => entry[0] === user);
+		if (index < 0)
+			return create_json_output({
+				message: `${user} is not in the queue.`,
+			});
+		queue_sheet.deleteRow(index + 2);
+		return create_json_output({
+			message: `${user} removed from the queue.`,
+		});
+	}
+
 	switch (action_type) {
 		case 'join':
 			return join_queue();
@@ -212,6 +234,10 @@ function doGet(request) {
 			return queue_info();
 		case 'next':
 			return next_user();
+		case 'remove':
+			return ['moderator', 'owner'].includes(user_level)
+				? remove_user(request.parameter.username)
+				: create_json_output({ error: 'You do not have permission.' });
 		default:
 			return create_json_output({ error: 'Invalid action.' });
 	}
