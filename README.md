@@ -1,7 +1,7 @@
 
 # Nightbot Queue Management API
 
-A Google Apps Script-based API for managing a queue of users across multiple channels. This script allows Nightbot to interact with a Google Sheet to handle queue actions like joining, leaving, listing, and managing priorities. It is ideal for streamers who want to manage their viewer queue efficiently.
+A Google Apps Script-based API for managing a queue of users across multiple channels. This script allows Nightbot to interact with a Google Sheet to handle queue actions like joining, leaving, listing, and managing priorities. It is ideal for streamers or a group of streamers who want to manage their viewer queue efficiently.
 
 ## Features
 
@@ -72,6 +72,34 @@ This is an example sheet:
 1. **Unexpected Token Error**: Ensure that your Google Apps Script is deployed with access set to **Anyone**.
 2. **Permissions Error**: Make sure Nightbot has moderator permissions in your channel.
 3. **Queue Not Sorting Properly**: Ensure the correct data types are used in the Google Sheet (e.g., \`TRUE\` for subscribers, numeric values for tips).
+
+## What still needs to change
+
+1. Better Code Organization
+
+    Split the code into smaller, reusable parts to make it easier to update and maintain.
+
+2. Improved Error Handling
+
+    Provide clearer error messages and feedback when something goes wrong.
+    Use logging to help track and fix issues faster.
+
+3. Faster Performance
+
+    Reduce the number of times the script interacts with Google Sheets to speed things up.
+    Cache data locally during execution for quicker access.
+
+4. Concurrency Control
+
+    Prevent multiple users from making conflicting changes to the queue at the same time using locks.
+
+5. Flexible Sorting Options
+
+    Allow users to customize the queue sorting (e.g., prioritize top tippers or subscribers).
+
+6. Enhanced Data Validation
+
+    Add checks to ensure the data added to the queue is accurate and consistent.
 
 ## Contributing
 
